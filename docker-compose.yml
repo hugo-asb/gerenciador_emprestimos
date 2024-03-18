@@ -1,0 +1,31 @@
+version: "3.9"
+
+services:
+  django:
+    container_name: django_loan_api
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - DB_ENV=loan_api_db
+      - USER_ENV=postgres
+      - PASSWORD_ENV=postgres
+      - PORT_ENV=5432
+      - HOST_ENV=db
+    depends_on:
+      - db
+
+  db:
+    container_name: loan_api_db
+    image: postgres:15
+    environment:
+      - POSTGRES_DB=loan_api_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data: {}

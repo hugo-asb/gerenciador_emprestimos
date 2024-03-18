@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -25,7 +26,7 @@ SECRET_KEY = 'django-insecure-pq--ifbhu1e@*q4v(xrs+x%v7fefo$o0r76+di)mjtvi$$xc+t
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['0.0.0.0']
 
 
 # Application definition
@@ -37,6 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'loan_api',
 ]
 
 MIDDLEWARE = [
@@ -75,8 +78,12 @@ WSGI_APPLICATION = 'loan_api.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': os.environ.get('DRIVER_ENV','django.db.backends.postgresql'),
+        'NAME': os.environ.get('DB_ENV','loan_api_db'),
+        'USER': os.environ.get('USER_ENV','postgres'),
+        'PASSWORD':os.environ.get('PASSWORD_ENV','postgres'),
+        'PORT': os.environ.get('PORT_ENV','5434'),
+        'HOST': os.environ.get('HOST_ENV','localhost'),
     }
 }
 
