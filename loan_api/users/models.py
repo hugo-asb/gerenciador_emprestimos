@@ -1,12 +1,17 @@
+from django.conf import settings
 from django.db import models
+from django.db.models.signals import post_save
+from rest_framework.authtoken.models import Token
 from django.contrib.auth import models as auth_models
+from django.dispatch import receiver
 
 
 class UserManager(auth_models.BaseUserManager):
     def create_user(
         self,
-        firs_name: str,
+        first_name: str,
         last_name: str,
+        username: str,
         email: str,
         password: str = None,
         is_staff=False,
@@ -14,14 +19,13 @@ class UserManager(auth_models.BaseUserManager):
     ) -> "User":
         if not email:
             raise ValueError("Users must have an email address")
-        if not firs_name:
-            raise ValueError("Users must have a first name")
-        if not last_name:
-            raise ValueError("Users must have a last name")
+        if not username:
+            raise ValueError("Users must have an username")
 
         user = self.model(email=self.normalize_email(email))
-        user.first_name = firs_name
+        user.first_name = first_name
         user.last_name = last_name
+        user.username = username
         user.set_password(password)
         user.is_active = True
         user.is_staff = is_staff
@@ -30,10 +34,16 @@ class UserManager(auth_models.BaseUserManager):
         return user
 
     def create_superuser(
-        self, firs_name: str, last_name: str, email: str, password: str = None
+        self,
+        username: str,
+        first_name: str,
+        last_name: str,
+        email: str,
+        password: str = None,
     ) -> "User":
         user = self.create_user(
-            firs_name=firs_name,
+            username=username,
+            first_name=first_name,
             last_name=last_name,
             email=email,
             password=password,
@@ -48,11 +58,19 @@ class UserManager(auth_models.BaseUserManager):
 class User(auth_models.AbstractUser):
     first_name = models.CharField(verbose_name="First name", max_length=255)
     last_name = models.CharField(verbose_name="Last name", max_length=255)
+    username = models.CharField(
+        verbose_name="Username", max_length=255, unique=True, default="default"
+    )
     email = models.EmailField(verbose_name="Email", max_length=255, unique=True)
     password = models.CharField(verbose_name="Password", max_length=255)
-    username = None
 
     objects = UserManager()
 
-    USERNAME_FIELD = "email"
-    REQUIRED_FIELDS = ["first_name", "last_name"]
+    USERNAME_FIELD = "username"
+    REQUIRED_FIELDS = ["first_name", "last_name", "email"]
+
+
+@receiver(post_save, sender=settings.AUTH_USER_MODEL)
+def create_auth_token(sender, instance=None, created=False, **kwargs):
+    if created:
+        Token.objects.create(user=instance)
