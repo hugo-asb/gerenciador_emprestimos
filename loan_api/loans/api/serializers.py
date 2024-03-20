@@ -18,6 +18,10 @@ class LoanSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         if self.is_valid():
+            validated_data["user"] = self.context["request"].user
+            validated_data["ip_address"] = self.context.get("request").META.get(
+                "REMOTE_ADDR"
+            )
             return Loan.objects.create(**validated_data)
 
     def update(self, instance, validated_data):
@@ -30,3 +34,10 @@ class LoanSerializer(serializers.ModelSerializer):
             )
             instance.save()
             return instance
+
+    def validate_nominal_value(self, nominal_value):
+        if nominal_value <= 0:
+            raise serializers.ValidationError(
+                {"message": "Nominal value must be greater than zero"}
+            )
+        return nominal_value
