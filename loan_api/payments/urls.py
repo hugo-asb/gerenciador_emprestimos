@@ -5,10 +5,13 @@ from payments import views
 
 
 router = DefaultRouter()
-router.register("list", PaymentViewSet, basename="Payment list")
+router.register("list_all", PaymentViewSet, basename="list_all_payments")
+router.register(
+    "list/(?P<loan_id>[^/.]+)", PaymentViewSet, basename="list_payments_by_loan_id"
+)
 
 urlpatterns = [
-    path("", views.PaymentPost.as_view(), name="Create new payment"),
-    path("<int:id>", views.PaymentView.as_view(), name="Payment get, patch and delete"),
+    path("", views.PaymentPost.as_view(), name="post_payment"),
+    path("<int:id>", views.PaymentView.as_view(), name="payment_methods"),
     path("", include(router.urls)),
 ]

@@ -3,6 +3,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
+from loans.models import Loan
 from payments.api.serializers import PaymentSerializer
 from payments.models import Payment
 
@@ -44,6 +45,13 @@ class PaymentPost(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
+        loan = Loan.objects.get(pk=request.data["loan"])
+        if loan.user != request.user:
+            return Response(
+                {"detail": "This loan is not bonded with you"},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
         serializer = PaymentSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
             serializer.save()

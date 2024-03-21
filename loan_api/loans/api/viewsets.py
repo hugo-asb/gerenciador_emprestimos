@@ -1,10 +1,8 @@
-from django.shortcuts import get_object_or_404
 from rest_framework.viewsets import ReadOnlyModelViewSet
-from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from loans.models import Loan
 from loans.api.serializers import LoanSerializer
-from loans.paginations import CustomPagination
+from loan_api.paginations import CustomPagination
 
 
 class LoanViewSet(ReadOnlyModelViewSet):
