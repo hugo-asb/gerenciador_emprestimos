@@ -50,13 +50,3 @@ class LoanPost(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-class LoanList(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request):
-        loans = Loan.objects.filter(user=request.user)
-        serializer = LoanSerializer(loans, many=True)
-
-        return Response(serializer.data)
