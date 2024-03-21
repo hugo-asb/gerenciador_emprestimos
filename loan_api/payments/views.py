@@ -45,12 +45,18 @@ class PaymentPost(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        loan = Loan.objects.get(pk=request.data["loan"])
+        loan_403_response = Response(
+            {"detail": "This loan is not bonded with you"},
+            status=status.HTTP_403_FORBIDDEN,
+        )
+
+        try:
+            loan = Loan.objects.get(pk=request.data["loan"])
+        except Loan.DoesNotExist:
+            return loan_403_response
+
         if loan.user != request.user:
-            return Response(
-                {"detail": "This loan is not bonded with you"},
-                status=status.HTTP_403_FORBIDDEN,
-            )
+            return loan_403_response
 
         serializer = PaymentSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
