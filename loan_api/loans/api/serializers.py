@@ -5,19 +5,25 @@ from loans.models import Loan
 
 class LoanSerializer(serializers.ModelSerializer):
     total_installments = serializers.SerializerMethodField("get_total_installments")
+    total_interest = serializers.SerializerMethodField("get_total_interest")
+    total_paid = serializers.SerializerMethodField("get_total_paid")
+    debt = serializers.SerializerMethodField("get_balance")
 
     class Meta:
         model = Loan
         fields = (
             "id",
+            "user",
+            "bank",
+            "ip_address",
             "nominal_value",
             "interest_rate",
-            "ip_address",
             "request_date",
             "maturity_date",
-            "bank",
-            "user",
             "total_installments",
+            "total_interest",
+            "total_paid",
+            "debt",
         )
         read_only_fields = ("id", "user", "ip_address", "request_date")
 
@@ -56,3 +62,12 @@ class LoanSerializer(serializers.ModelSerializer):
 
     def get_total_installments(self, obj):
         return obj.get_total_installments
+
+    def get_total_interest(self, obj):
+        return obj.get_total_interest
+
+    def get_total_paid(self, obj):
+        return obj.get_total_paid
+
+    def get_balance(self, obj):
+        return obj.get_balance

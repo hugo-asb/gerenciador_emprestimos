@@ -1,5 +1,6 @@
-import datetime
 from django.db import models
+from django.db.models import Sum
+from payments.models import Payment
 
 
 class Loan(models.Model):
@@ -23,3 +24,24 @@ class Loan(models.Model):
             ((maturity_date.year - request_date.year) * 12)
         )
         return total_installments
+
+    @property
+    def get_total_interest(self):
+        initial_value = self.nominal_value
+        interest_rate = self.interest_rate / 100
+        period = self.get_total_installments
+        total_debt = initial_value * ((1 + interest_rate) ** period)
+        total_interest = total_debt - initial_value
+        return round(total_interest, 2)
+
+    @property
+    def get_total_paid(self):
+        total_paid = Payment.objects.filter(loan=self.id).aggregate(Sum("value"))
+        if total_paid["value__sum"]:
+            return total_paid["value__sum"]
+        return 0
+
+    @property
+    def get_balance(self):
+        total_debt = self.nominal_value + self.get_total_interest
+        return total_debt - self.get_total_paid
