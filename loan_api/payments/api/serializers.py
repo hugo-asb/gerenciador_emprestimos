@@ -18,9 +18,32 @@ class PaymentSerializer(serializers.ModelSerializer):
             instance.save()
             return instance
 
+    def validate(self, data):
+        if data["date"] < data["loan"].request_date:
+            raise serializers.ValidationError(
+                {"detail": "Only payments past loan request date are acceptable"}
+            )
+
+        if data["date"] > data["loan"].maturity_date:
+            raise serializers.ValidationError(
+                {"detail": "Payments past loan maturity date are not acceptable"}
+            )
+
+        if data["value"] > data["loan"].get_balance:
+            raise serializers.ValidationError(
+                {"detail": "Payments can not be bigger than total debt"}
+            )
+
+        if data["value"] + data["loan"].get_total_paid > data["loan"].get_balance:
+            raise serializers.ValidationError(
+                {"detail": "Total payments exceed total debt value"}
+            )
+
+        return data
+
     def validate_value(self, value):
         if value <= 0:
             raise serializers.ValidationError(
-                {"message": "Payment value must be greater than zero"}
+                {"detail": "Payment value must be greater than zero"}
             )
         return value

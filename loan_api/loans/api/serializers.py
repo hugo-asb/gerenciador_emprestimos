@@ -7,7 +7,7 @@ class LoanSerializer(serializers.ModelSerializer):
     total_installments = serializers.SerializerMethodField("get_total_installments")
     total_interest = serializers.SerializerMethodField("get_total_interest")
     total_paid = serializers.SerializerMethodField("get_total_paid")
-    debt = serializers.SerializerMethodField("get_balance")
+    outstanding_balance = serializers.SerializerMethodField("get_balance")
 
     class Meta:
         model = Loan
@@ -23,7 +23,7 @@ class LoanSerializer(serializers.ModelSerializer):
             "total_installments",
             "total_interest",
             "total_paid",
-            "debt",
+            "outstanding_balance",
         )
         read_only_fields = ("id", "user", "ip_address", "request_date")
 
