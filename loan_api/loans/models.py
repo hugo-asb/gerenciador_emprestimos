@@ -1,3 +1,4 @@
+import datetime
 from django.db import models
 
 
@@ -10,5 +11,15 @@ class Loan(models.Model):
     )
     ip_address = models.GenericIPAddressField(verbose_name="IP address")
     request_date = models.DateField(auto_now_add=True)
+    maturity_date = models.DateField(blank=False)
     bank = models.CharField(max_length=100)
     user = models.ForeignKey("users.User", on_delete=models.CASCADE)
+
+    @property
+    def get_total_installments(self):
+        request_date = self.request_date
+        maturity_date = self.maturity_date
+        total_installments = (maturity_date.month - request_date.month) + (
+            ((maturity_date.year - request_date.year) * 12)
+        )
+        return total_installments

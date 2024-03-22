@@ -9,6 +9,6 @@ router.register("list", LoanViewSet, basename="Loan list")
 
 urlpatterns = [
     path("", views.LoanPost.as_view(), name="Create new loan"),
-    path("<int:id>", views.LoanView.as_view(), name="Create new loan"),
+    path("<int:id>/", views.LoanView.as_view(), name="Create new loan"),
     path("", include(router.urls)),
 ]
