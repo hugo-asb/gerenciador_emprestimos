@@ -12,7 +12,3 @@ class LoanViewSet(ReadOnlyModelViewSet):
 
     def get_queryset(self):
         return Loan.objects.filter(user=self.request.user).order_by("-request_date")
-
-    def perform_destroy(self, instance):
-        instance.is_active = False
-        instance.save()

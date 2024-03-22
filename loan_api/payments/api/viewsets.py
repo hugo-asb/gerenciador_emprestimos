@@ -17,10 +17,6 @@ class ListAllPaymentsViewSet(ReadOnlyModelViewSet):
         )
         return Payment.objects.filter(loan__in=loans_id).order_by("-date")
 
-    def perform_destroy(self, instance):
-        instance.is_active = False
-        instance.save()
-
 
 class ListPaymentsByLoanViewSet(ReadOnlyModelViewSet):
     permission_classes = [IsAuthenticated]
@@ -30,7 +26,3 @@ class ListPaymentsByLoanViewSet(ReadOnlyModelViewSet):
     def get_queryset(self):
         if "loan_id" in self.kwargs:
             return Payment.objects.filter(loan=self.kwargs["loan_id"]).order_by("-date")
-
-    def perform_destroy(self, instance):
-        instance.is_active = False
-        instance.save()
