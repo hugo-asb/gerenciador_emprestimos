@@ -1,4 +1,4 @@
-from django.http import Http404
+from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -11,33 +11,31 @@ from payments.models import Payment
 class PaymentView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def get_payment_by_id(self, id):
-        try:
-            payment = Payment.objects.get(pk=id)
-            return payment
-        except Payment.DoesNotExist:
-            raise Http404
-
     def get(self, request, id):
-        payment = self.get_payment_by_id(id)
-        serializer = PaymentSerializer(payment)
+        payment = get_object_or_404(Payment, pk=id)
+        if request.user != payment.loan.user:
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
+        serializer = PaymentSerializer(payment)
         return Response(serializer.data)
 
     def patch(self, request, id):
-        payment = self.get_payment_by_id(id)
+        payment = get_object_or_404(pk=id)
+        if request.user != payment.loan.user:
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         serializer = PaymentSerializer(payment, data=request.data, partial=True)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
             return Response(serializer.data)
-
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, id):
-        payment = self.get_payment_by_id(id)
-        payment.delete()
+        payment = get_object_or_404(pk=id)
+        if request.user != payment.loan.user:
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
+        payment.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
