@@ -8,10 +8,10 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         try:
             User.objects.create_superuser(
-                username="generated_admin",
+                username="generated-admin",
                 first_name="Admin",
                 last_name="Admin",
-                email="generated_admin@admin.com",
+                email="generated-admin@admin.com",
                 password="admin-password",
             )
         except Exception as error:
@@ -19,10 +19,10 @@ class Command(BaseCommand):
 
         try:
             User.objects.create_user(
-                username="generated_user",
+                username="generated-user",
                 first_name="User",
                 last_name="User",
-                email="generated_user@user.com",
+                email="generated-user@user.com",
                 password="user-password",
             )
         except Exception as error:
