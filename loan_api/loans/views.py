@@ -46,3 +46,22 @@ class LoanPost(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class GetOutstandingBalance(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def retrieve_valid_loan(self, request, loan_id):
+        loan = get_object_or_404(Loan, pk=loan_id)
+        if request.user != loan.user:
+            raise PermissionDenied("Permission Denied")
+        return loan
+
+    def get(self, request, id):
+        loan = self.retrieve_valid_loan(request=request, loan_id=id)
+        serializer = LoanSerializer(
+            loan,
+            context={"request": request},
+            fields={"id", "user", "outstanding_balance"},
+        )
+        return Response(serializer.data)

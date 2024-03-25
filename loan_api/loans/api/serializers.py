@@ -1,9 +1,10 @@
 import datetime
 from rest_framework import serializers
+from loan_api.dynamic_serializer import DynamicFieldsModelSerializer
 from loans.models import Loan
 
 
-class LoanSerializer(serializers.ModelSerializer):
+class LoanSerializer(DynamicFieldsModelSerializer):
     total_installments = serializers.SerializerMethodField("get_total_installments")
     total_interest = serializers.SerializerMethodField("get_total_interest")
     total_paid = serializers.SerializerMethodField("get_total_paid")
@@ -17,10 +18,10 @@ class LoanSerializer(serializers.ModelSerializer):
             "user",
             "bank",
             "ip_address",
-            "nominal_value",
-            "interest_rate",
             "request_date",
             "maturity_date",
+            "nominal_value",
+            "interest_rate",
             "total_debt",
             "total_installments",
             "total_interest",
