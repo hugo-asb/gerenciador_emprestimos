@@ -49,19 +49,26 @@ class LoanSerializer(DynamicFieldsModelSerializer):
             instance.save()
             return instance
 
-    def validate(self, data):
-        if data["maturity_date"] <= datetime.date.today():
-            raise serializers.ValidationError(
-                {"detail": "Loan maturity date must be greater than request date"}
-            )
-        return data
-
     def validate_nominal_value(self, nominal_value):
         if nominal_value <= 0:
             raise serializers.ValidationError(
-                {"message": "Nominal value must be greater than zero"}
+                {"detail": "Nominal value must be greater than zero"}
             )
         return nominal_value
+
+    def validate_maturity_date(self, maturity_date):
+        if maturity_date <= datetime.date.today():
+            raise serializers.ValidationError(
+                {"detail": "Loan maturity date must be greater than request date"}
+            )
+        return maturity_date
+
+    def validate_interest_rate(self, interest_rate):
+        if interest_rate <= 0:
+            raise serializers.ValidationError(
+                {"detail": "Interest rate must be greater than zero"}
+            )
+        return interest_rate
 
     def get_total_installments(self, obj):
         return obj.get_total_installments

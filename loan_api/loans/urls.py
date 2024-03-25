@@ -11,7 +11,7 @@ urlpatterns = [
     path("", views.LoanPost.as_view(), name="create_new_loan"),
     path("<int:id>/", views.LoanView.as_view(), name="loan_get_patch_delete"),
     path(
-        "<int:id>/foo/",
+        "<int:id>/outstanding_balance/",
         views.GetOutstandingBalance.as_view(),
         name="loan_get_outstanding_balance",
     ),

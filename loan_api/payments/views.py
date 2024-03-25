@@ -24,14 +24,6 @@ class PaymentView(APIView):
         serializer = PaymentSerializer(payment)
         return Response(serializer.data)
 
-    def patch(self, request, id):
-        payment = self.retrieve_valid_payment(request=request, payment_id=id)
-        serializer = PaymentSerializer(payment, data=request.data, partial=True)
-        if serializer.is_valid(raise_exception=True):
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
     def delete(self, request, id):
         payment = self.retrieve_valid_payment(request=request, payment_id=id)
         payment.delete()

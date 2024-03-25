@@ -11,13 +11,6 @@ class PaymentSerializer(serializers.ModelSerializer):
         if self.is_valid():
             return Payment.objects.create(**validated_data)
 
-    def update(self, instance, validated_data):
-        if self.is_valid():
-            instance.date = validated_data.get("date", instance.date)
-            instance.value = validated_data.get("value", instance.value)
-            instance.save()
-            return instance
-
     def validate(self, data):
         if data["date"] < data["loan"].request_date:
             raise serializers.ValidationError(

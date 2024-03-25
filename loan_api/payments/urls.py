@@ -14,6 +14,6 @@ router.register(
 
 urlpatterns = [
     path("", views.PaymentPost.as_view(), name="post_payment"),
-    path("<int:id>", views.PaymentView.as_view(), name="payment_methods"),
+    path("<int:id>/", views.PaymentView.as_view(), name="payment_methods"),
     path("", include(router.urls)),
 ]
