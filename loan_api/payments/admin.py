@@ -1,3 +1,15 @@
 from django.contrib import admin
+from . import models
 
-# Register your models here.
+
+class PaymentAdmin(admin.ModelAdmin):
+    search_fields = ("loan",)
+    list_display = (
+        "id",
+        "loan",
+        "date",
+        "value",
+    )
+
+
+admin.site.register(models.Payment, PaymentAdmin)
