@@ -45,3 +45,7 @@ class Loan(models.Model):
     def get_balance(self):
         total_debt = self.nominal_value + self.get_total_interest
         return total_debt - self.get_total_paid
+
+    @property
+    def get_total_debt(self):
+        return self.nominal_value + self.get_total_interest

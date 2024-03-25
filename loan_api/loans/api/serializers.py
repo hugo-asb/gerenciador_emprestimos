@@ -8,6 +8,7 @@ class LoanSerializer(serializers.ModelSerializer):
     total_interest = serializers.SerializerMethodField("get_total_interest")
     total_paid = serializers.SerializerMethodField("get_total_paid")
     outstanding_balance = serializers.SerializerMethodField("get_balance")
+    total_debt = serializers.SerializerMethodField("get_total_debt")
 
     class Meta:
         model = Loan
@@ -20,6 +21,7 @@ class LoanSerializer(serializers.ModelSerializer):
             "interest_rate",
             "request_date",
             "maturity_date",
+            "total_debt",
             "total_installments",
             "total_interest",
             "total_paid",
@@ -71,3 +73,6 @@ class LoanSerializer(serializers.ModelSerializer):
 
     def get_balance(self, obj):
         return obj.get_balance
+
+    def get_total_debt(self, obj):
+        return obj.get_total_debt
