@@ -67,8 +67,13 @@ class PaymentTests(APITestCase):
             date=self.generate_date(months_to_add=1),
             value=Decimal(1000.00),
         )
-        self.test_payment = Payment.objects.create(
+        self.test_payment2 = Payment.objects.create(
             loan=self.test_loan,
+            date=self.generate_date(months_to_add=2),
+            value=Decimal(2000.00),
+        )
+        self.test_payment_loan2 = Payment.objects.create(
+            loan=self.test_loan2,
             date=self.generate_date(months_to_add=2),
             value=Decimal(2000.00),
         )
@@ -282,3 +287,61 @@ class PaymentTests(APITestCase):
             request_body,
         )
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    # Tests for get payments list
+    def test_get_all_user_payments_list(self):
+        response = self.client.get("/api/payments/list_all/")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data["results"]), 3)
+        self.assertEqual(response.data["count"], 3)
+        self.assertTrue("links" in response.data.keys())
+
+    def test_get_all_payments_list_from_user_without_payments(self):
+        self.client.logout()
+        self.client.force_authenticate(self.test_user2)
+        response = self.client.get("/api/payments/list_all/")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data["results"]), 0)
+        self.assertEqual(response.data["count"], 0)
+        self.assertTrue("links" in response.data.keys())
+
+    def test_get_user_all_payments_list_without_a_token(self):
+        self.client.logout()
+        response = self.client.get("/api/payments/list_all/")
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_get_all_payments_from_a_loan(self):
+        response = self.client.get(f"/api/payments/list/{self.test_loan.pk}/")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data["results"]), 2)
+        self.assertEqual(response.data["count"], 2)
+        self.assertTrue("links" in response.data.keys())
+
+    def test_get_all_payments_from_an_unexistent_loan(self):
+        response = self.client.get(f"/api/payments/list/{self.test_loan.pk + 9999}/")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data["results"]), 0)
+        self.assertEqual(response.data["count"], 0)
+        self.assertTrue("links" in response.data.keys())
+
+    def test_get_all_payments_from_another_user_loan(self):
+        response = self.client.get(f"/api/payments/list/{self.test_loan_user2.pk}/")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data["results"]), 0)
+        self.assertEqual(response.data["count"], 0)
+        self.assertTrue("links" in response.data.keys())
+
+
+# def test_get_loan_list_without_a_token(self):
+#     self.client.logout()
+#     response = self.client.get("/api/loans/list/")
+#     self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+# def test_get_loan_list_from_user_with_no_loans_returns_empty_list(self):
+#     self.client.logout()
+#     self.client.force_authenticate(self.test_user2)
+#     response = self.client.get("/api/loans/list/")
+#     self.assertEqual(response.status_code, status.HTTP_200_OK)
+#     self.assertEqual(len(response.data["results"]), 0)
+#     self.assertEqual(response.data["count"], 0)
+#     self.assertTrue("links" in response.data.keys())
