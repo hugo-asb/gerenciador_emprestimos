@@ -259,3 +259,31 @@ class LoanTests(APITestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         self.assertRaisesMessage(response.data, self.PERMISSION_DENIED_ERROR_MSG)
+
+    # Tests for get loan list
+    def test_get_loan_list(self):
+        response = self.client.get("/api/loans/list/")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertDictEqual(
+            response.data["results"][0], LoanSerializer(self.test_loan).data
+        )
+        self.assertDictEqual(
+            response.data["results"][1], LoanSerializer(self.test_loan2).data
+        )
+        self.assertGreater(len(response.data["results"]), 0)
+        self.assertGreater(response.data["count"], 0)
+        self.assertTrue("links" in response.data.keys())
+
+    def test_get_loan_list_without_a_token(self):
+        self.client.logout()
+        response = self.client.get("/api/loans/list/")
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_get_loan_list_from_user_with_no_loans_returns_empty_list(self):
+        self.client.logout()
+        self.client.force_authenticate(self.test_user2)
+        response = self.client.get("/api/loans/list/")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data["results"]), 0)
+        self.assertEqual(response.data["count"], 0)
+        self.assertTrue("links" in response.data.keys())
