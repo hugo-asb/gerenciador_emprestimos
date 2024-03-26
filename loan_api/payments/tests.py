@@ -319,29 +319,17 @@ class PaymentTests(APITestCase):
 
     def test_get_all_payments_from_an_unexistent_loan(self):
         response = self.client.get(f"/api/payments/list/{self.test_loan.pk + 9999}/")
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data["results"]), 0)
-        self.assertEqual(response.data["count"], 0)
-        self.assertTrue("links" in response.data.keys())
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_get_all_payments_from_another_user_loan(self):
+        response = self.client.get(f"/api/payments/list/{self.test_loan_user2.pk}/")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_get_payments_from_loan_with_no_payments(self):
+        self.client.logout()
+        self.client.force_authenticate(self.test_user2)
         response = self.client.get(f"/api/payments/list/{self.test_loan_user2.pk}/")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data["results"]), 0)
         self.assertEqual(response.data["count"], 0)
         self.assertTrue("links" in response.data.keys())
-
-
-# def test_get_loan_list_without_a_token(self):
-#     self.client.logout()
-#     response = self.client.get("/api/loans/list/")
-#     self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-
-# def test_get_loan_list_from_user_with_no_loans_returns_empty_list(self):
-#     self.client.logout()
-#     self.client.force_authenticate(self.test_user2)
-#     response = self.client.get("/api/loans/list/")
-#     self.assertEqual(response.status_code, status.HTTP_200_OK)
-#     self.assertEqual(len(response.data["results"]), 0)
-#     self.assertEqual(response.data["count"], 0)
-#     self.assertTrue("links" in response.data.keys())
