@@ -5,6 +5,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from users.models import User
 from loans.models import Loan
+from loans.api.serializers import LoanSerializer
 from payments.models import Payment
 from payments.api.serializers import PaymentSerializer
 
@@ -242,11 +243,11 @@ class PaymentTests(APITestCase):
             self.PAYMENT_BIGGER_THAN_TOTAL_DEBT_ERROR_MSG,
         )
 
-    def test_post_payment_that_added_to_total_paid_exceeds_outstanding_balance(self):
+    def test_post_payment_that_added_to_total_paid_exceeds_total_debt(self):
         payment_value = (
-            self.test_loan.get_balance
-            - self.test_payment.value
-            + (self.test_payment.value / 2)
+            self.test_loan.get_total_debt
+            - self.test_loan.get_total_paid
+            + (self.test_loan.get_total_paid / 2)
         )
         request_body = {
             "loan": self.test_loan.id,
@@ -262,6 +263,21 @@ class PaymentTests(APITestCase):
             str(response.data["detail"][0]),
             self.TOTAL_PAYMENTS_EXCEEDS_TOTAL_DEBT_ERROR_MSG,
         )
+
+    def test_post_payment_that_added_to_total_paid_equals_total_debt(self):
+        request_body = {
+            "loan": self.test_loan.id,
+            "value": self.test_loan.get_total_debt - self.test_loan.get_total_paid,
+            "date": self.generate_date(months_to_add=1),
+        }
+        response = self.client.post(
+            reverse("post_payment"),
+            request_body,
+        )
+        paid_loan = LoanSerializer(Loan.objects.get(id=self.test_loan.id)).data
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(paid_loan["outstanding_balance"], Decimal(0))
+        self.assertEqual(paid_loan["total_debt"], paid_loan["total_paid"])
 
     def test_post_payment_without_a_token(self):
         self.client.logout()
