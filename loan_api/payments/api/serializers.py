@@ -22,12 +22,12 @@ class PaymentSerializer(serializers.ModelSerializer):
                 {"detail": "Payments past loan maturity date are not acceptable"}
             )
 
-        if data["value"] > data["loan"].get_balance:
+        if data["value"] > data["loan"].get_total_debt:
             raise serializers.ValidationError(
                 {"detail": "Payments can not be bigger than total debt"}
             )
 
-        if data["value"] + data["loan"].get_total_paid > data["loan"].get_balance:
+        if data["value"] + data["loan"].get_total_paid > data["loan"].get_total_debt:
             raise serializers.ValidationError(
                 {"detail": "Total payments exceed total debt value"}
             )
