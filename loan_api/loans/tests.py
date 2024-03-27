@@ -85,7 +85,10 @@ class LoanTests(APITestCase):
             reverse("loan_get_patch_delete", args=[self.test_loan.pk])
         )
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-        self.assertRaisesMessage(response.data, self.PERMISSION_DENIED_ERROR_MSG)
+        self.assertEqual(
+            str(response.data["detail"]),
+            self.PERMISSION_DENIED_ERROR_MSG,
+        )
 
     # Tests for patch loans
     def test_patch_valid_loan(self):
@@ -109,7 +112,10 @@ class LoanTests(APITestCase):
             reverse("loan_get_patch_delete", args=[self.test_loan.pk]), request_body
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertRaisesMessage(response.data, self.INVALID_INTEREST_RATE_ERROR_MSG)
+        self.assertEqual(
+            str(response.data["interest_rate"]["detail"]),
+            self.INVALID_INTEREST_RATE_ERROR_MSG,
+        )
 
     def test_patch_loan_with_invalid_nominal_value(self):
         request_body = {"nominal_value": 0}
@@ -117,7 +123,10 @@ class LoanTests(APITestCase):
             reverse("loan_get_patch_delete", args=[self.test_loan.pk]), request_body
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertRaisesMessage(response.data, self.INVALID_NOMINAL_VALUE_ERROR_MSG)
+        self.assertEqual(
+            str(response.data["nominal_value"]["detail"]),
+            self.INVALID_NOMINAL_VALUE_ERROR_MSG,
+        )
 
     def test_patch_inexistent_loan(self):
         response = self.client.patch(
@@ -142,7 +151,10 @@ class LoanTests(APITestCase):
             self.LOAN_PATCH_REQ_BODY,
         )
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-        self.assertRaisesMessage(response.data, self.PERMISSION_DENIED_ERROR_MSG)
+        self.assertEqual(
+            str(response.data["detail"]),
+            self.PERMISSION_DENIED_ERROR_MSG,
+        )
 
     # Tests for delete loans
     def test_delete_valid_loan(self):
@@ -171,7 +183,10 @@ class LoanTests(APITestCase):
             reverse("loan_get_patch_delete", args=[self.test_loan.pk])
         )
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-        self.assertRaisesMessage(response.data, self.PERMISSION_DENIED_ERROR_MSG)
+        self.assertEqual(
+            str(response.data["detail"]),
+            self.PERMISSION_DENIED_ERROR_MSG,
+        )
 
     # Tests for post loans
     def test_post_valid_loan(self):
@@ -191,7 +206,10 @@ class LoanTests(APITestCase):
             request_body,
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertRaisesMessage(response.data, self.INVALID_INTEREST_RATE_ERROR_MSG)
+        self.assertEqual(
+            str(response.data["interest_rate"]["detail"]),
+            self.INVALID_INTEREST_RATE_ERROR_MSG,
+        )
 
     def test_post_loan_with_invalid_nominal_value(self):
         request_body = dict(self.LOAN_POST_REQ_BODY)
@@ -201,7 +219,10 @@ class LoanTests(APITestCase):
             request_body,
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertRaisesMessage(response.data, self.INVALID_NOMINAL_VALUE_ERROR_MSG)
+        self.assertEqual(
+            str(response.data["nominal_value"]["detail"]),
+            self.INVALID_NOMINAL_VALUE_ERROR_MSG,
+        )
 
     def test_post_loan_with_invalid_maturity_date(self):
         request_body = dict(self.LOAN_POST_REQ_BODY)
@@ -213,7 +234,10 @@ class LoanTests(APITestCase):
             request_body,
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertRaisesMessage(response.data, self.INVALID_MATURITY_DATE_ERROR_MSG)
+        self.assertEqual(
+            str(response.data["maturity_date"]["detail"]),
+            self.INVALID_MATURITY_DATE_ERROR_MSG,
+        )
 
     def test_post_loan_without_a_token(self):
         self.client.logout()
@@ -257,7 +281,10 @@ class LoanTests(APITestCase):
             reverse("loan_get_outstanding_balance", args=[self.test_loan.pk])
         )
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-        self.assertRaisesMessage(response.data, self.PERMISSION_DENIED_ERROR_MSG)
+        self.assertEqual(
+            str(response.data["detail"]),
+            self.PERMISSION_DENIED_ERROR_MSG,
+        )
 
     # Tests for get loan list
     def test_get_loan_list(self):
